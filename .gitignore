@@ -1,0 +1,14 @@
+# Frontend dependencies
+frontend/node_modules/
+frontend/dist/
+
+# Backend data & uploads (don't push DB or user uploads)
+backend/data/
+backend/uploads/
+backend_log.txt
+
+# Editor / OS files
+.vscode/
+.idea/
+*.DS_Store
+.env

@@ -1,0 +1,102 @@
+import { ref, watch } from 'vue'
+
+export const currentLanguage = ref(localStorage.getItem('language') || 'id')
+
+watch(currentLanguage, (newLang) => {
+  localStorage.setItem('language', newLang)
+})
+
+const dictionary = {
+  id: {
+    hello: 'Halo',
+    dashboardSubtitle: 'Mari belajar hal baru! (atau selesaikan tugas sebelum warnanya merah)',
+    tasks: 'Tugas',
+    aiChat: 'Chat AI',
+    addTask: 'Tambah Tugas',
+    settings: 'Pengaturan',
+    logout: 'Keluar',
+    overview: 'Ringkasan',
+    active: 'Aktif',
+    completed: 'Selesai',
+    critical: 'Kritis',
+    cancel: 'Batal',
+    deleteTask: 'Hapus Tugas',
+    title: 'Judul',
+    description: 'Deskripsi',
+    deadline: 'Batas Waktu',
+    difficulty: 'Tingkat Kesulitan',
+    progress: 'Progres',
+    easy: 'Mudah',
+    medium: 'Sedang',
+    hard: 'Sulit',
+    timeLeft: 'Waktu Tersisa',
+    overdue: 'Terlewat!',
+    alreadyCompleted: 'Sudah Selesai',
+    swipeToUnlock: 'Geser untuk selesai > > >',
+    emptyTasks: 'Belum ada tugas.',
+    emptyChatSubtitle: 'Ceritakan tugas-tugas kamu, deadline-nya kapan, dan seberapa susah. AI akan membuatkan todo list otomatis!',
+    tasksAdded: 'Tugas ditambahkan:',
+    chatPlaceholder: 'Ceritakan tugas kamu...',
+    onboarding1Title: 'Atur pekerjaanmu<br>dengan AI Assistant!',
+    onboarding1Desc: 'Cukup chat dengan AI kami untuk membuat daftar tugas. Kami mendeteksi deadline dan urgensi secara otomatis.',
+    onboarding2Title: 'Kalahkan deadline,<br>hindari warna merah!',
+    onboarding2Desc: 'Tugasmu memiliki health bar. Jangan biarkan menunda membuat tugasmu merah. Mulai selesaikan hari ini.',
+    next: 'Lanjut',
+    getStarted: 'Mulai Sekarang',
+    subtitleLogin: 'Berhenti menunda. Mulai menyelesaikan.',
+    username: 'Nama Pengguna',
+    password: 'Kata Sandi',
+    signIn: 'Masuk',
+    signUp: 'Daftar',
+    noAccount: 'Belum punya akun?',
+    haveAccount: 'Sudah punya akun?'
+  },
+  en: {
+    hello: 'Hello',
+    dashboardSubtitle: 'Let\'s Learn New Stuff! (or finish your tasks before they turn red)',
+    tasks: 'Tasks',
+    aiChat: 'AI Chat',
+    addTask: 'Add Task',
+    settings: 'Settings',
+    logout: 'Logout',
+    overview: 'Overview',
+    active: 'Active',
+    completed: 'Completed',
+    critical: 'Critical',
+    cancel: 'Cancel',
+    deleteTask: 'Delete Task',
+    title: 'Title',
+    description: 'Description',
+    deadline: 'Deadline',
+    difficulty: 'Difficulty',
+    progress: 'Progress',
+    easy: 'Easy',
+    medium: 'Medium',
+    hard: 'Hard',
+    timeLeft: 'Time Left',
+    overdue: 'Overdue!',
+    alreadyCompleted: 'Already Completed',
+    swipeToUnlock: 'Swipe to complete > > >',
+    emptyTasks: 'No tasks yet.',
+    emptyChatSubtitle: 'Tell me about your tasks, their deadlines, and difficulty. AI will build your todo list automatically!',
+    tasksAdded: 'Tasks added:',
+    chatPlaceholder: 'Tell me about your task...',
+    onboarding1Title: 'Organize your work<br>with AI Assistant!',
+    onboarding1Desc: 'Just chat with our AI to build your task list. We automatically detect deadlines and set the urgency.',
+    onboarding2Title: 'Beat the deadline,<br>avoid the red!',
+    onboarding2Desc: 'Your tasks have a health bar. Don\'t let procrastination turn your tasks red. Start finishing today.',
+    next: 'Next',
+    getStarted: 'Get Started',
+    subtitleLogin: 'Stop procrastinating. Start finishing.',
+    username: 'Username',
+    password: 'Password',
+    signIn: 'Sign In',
+    signUp: 'Sign Up',
+    noAccount: 'Don\'t have an account?',
+    haveAccount: 'Already have an account?'
+  }
+}
+
+export function t(key) {
+  return dictionary[currentLanguage.value]?.[key] || key
+}

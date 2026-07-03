@@ -4,20 +4,20 @@ echo "=========================================="
 echo "🚀 Memulai AntiDeadline..."
 echo "=========================================="
 
-# Matikan proses yang mungkin masih nyangkut di port 8000 (Backend)
-if lsof -Pi :8000 -sTCP:LISTEN -t >/dev/null ; then
-    echo "Membersihkan port 8000..."
-    kill -9 $(lsof -Pi :8000 -sTCP:LISTEN -t)
+# Matikan proses yang mungkin masih nyangkut di port 8001 (Backend)
+if lsof -Pi :8001 -sTCP:LISTEN -t >/dev/null ; then
+    echo "Membersihkan port 8001..."
+    kill -9 $(lsof -Pi :8001 -sTCP:LISTEN -t)
 fi
 
-echo "🟢 1. Menyalakan Backend PHP (localhost:8000)"
+echo "🟢 1. Menyalakan Backend PHP (localhost:8001)"
 cd backend
-php -S localhost:8000 index.php > ../backend_log.txt 2>&1 &
+php -S localhost:8001 index.php > ../backend_log.txt 2>&1 &
 cd ..
 
-echo "🟢 2. Menyalakan Frontend Vue"
+echo "🟢 2. Menyalakan Frontend Vue (Dapat diakses di jaringan lokal)"
 cd frontend
-npm run dev &
+npm run dev -- --host &
 cd ..
 
 echo "🟢 3. Memeriksa koneksi 9router (AI Proxy)..."

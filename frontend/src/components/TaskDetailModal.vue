@@ -2,9 +2,9 @@
   <div class="task-detail-overlay" @click.self="$emit('close')">
     <div class="task-detail-card">
       <!-- Header -->
-      <div class="task-detail-header">
-        <span class="task-difficulty" :class="task.difficulty">{{ task.difficulty }}</span>
-        <button class="btn-icon" @click="$emit('close')" v-html="icons.close"></button>
+      <div class="task-detail-header" style="align-items: center; margin-bottom: 16px;">
+        <span class="task-difficulty" :class="task.difficulty" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">{{ t(task.difficulty) }}</span>
+        <button class="btn-icon" @click="$emit('close')" v-html="icons.close" style="color: white;"></button>
       </div>
 
       <!-- Body -->
@@ -14,17 +14,17 @@
 
         <div class="task-detail-meta">
           <div class="task-detail-row">
-            <span class="label"><span v-html="icons.calendar"></span> Deadline</span>
+            <span class="label"><span v-html="icons.calendar"></span> {{ t('deadline') }}</span>
             <span class="value" :style="{ color: isOverdue ? 'var(--danger)' : '' }">
               {{ formatDate(task.deadline) }}
             </span>
           </div>
           <div class="task-detail-row">
-            <span class="label"><span v-html="icons.clock"></span> Time Left</span>
+            <span class="label"><span v-html="icons.clock"></span> {{ t('timeLeft') }}</span>
             <span class="value">{{ timeLeft }}</span>
           </div>
           <div class="task-detail-row" v-if="task.estimated_time">
-            <span class="label"><span v-html="icons.clock"></span> Estimasi</span>
+            <span class="label"><span v-html="icons.clock"></span> {{ t('estimated') }}</span>
             <span class="value" style="color: var(--accent);">{{ task.estimated_time }}</span>
           </div>
         </div>
@@ -34,7 +34,7 @@
           <div class="health-bar">
             <div class="health-bar-fill" :style="{ width: task.health_percent + '%', backgroundColor: healthColor }"></div>
           </div>
-          <div class="health-info">
+          <div class="health-info" style="color: var(--text-secondary);">
             <span>Health</span>
             <span :style="{ color: healthColor, fontWeight: 600 }">{{ Math.round(task.health_percent) }}%</span>
           </div>
@@ -43,7 +43,11 @@
 
       <!-- Slide to Complete -->
       <div class="slide-to-complete" v-if="!task.completed">
-        <div v-if="!justCompleted" class="slide-track" ref="trackEl">
+        <div v-if="task.group_id" class="slide-completed" style="background: rgba(0, 139, 255, 0.1); color: var(--accent); font-size: 13px; text-align: center; padding: 12px; border: 1px solid var(--accent); cursor: default;">
+          <span v-html="icons.alert" style="margin-right: 8px;"></span>
+          {{ t('groupTaskCompleteNotice') }}
+        </div>
+        <div v-else-if="!justCompleted" class="slide-track" ref="trackEl">
           <div class="slide-track-text">
             {{ t('swipeToUnlock') }}
           </div>
@@ -59,21 +63,21 @@
         </div>
         <div v-else class="slide-completed">
           <span v-html="icons.check"></span>
-          Completed!
+          {{ t('completed') }}!
         </div>
       </div>
 
       <div v-if="task.completed" class="slide-to-complete">
         <div class="slide-completed" style="background: var(--text-tertiary);">
           <span v-html="icons.check"></span>
-          Already Completed
+          {{ t('alreadyCompleted') }}
         </div>
       </div>
 
       <!-- Footer -->
       <div class="task-detail-footer">
         <button class="btn btn-danger" @click="showDeleteConfirm = true" style="width:100%; padding: 14px 20px; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-          <span v-html="icons.trash"></span> Delete Task
+          <span v-html="icons.trash"></span> {{ t('deleteTask') }}
         </button>
       </div>
     </div>
@@ -85,11 +89,11 @@
           <div class="confirm-icon">
             <span v-html="icons.alert"></span>
           </div>
-          <h3>Hapus Tugas?</h3>
-          <p>Tugas <strong>{{ task.title }}</strong> akan dihapus secara permanen dan tidak bisa dikembalikan.</p>
+          <h3>{{ t('deleteTaskConfirmTitle') }}</h3>
+          <p>{{ t('deleteTaskConfirmDesc') }}</p>
           <div class="confirm-actions">
-            <button class="btn btn-ghost" @click="showDeleteConfirm = false" style="flex:1; padding: 12px;">Batal</button>
-            <button class="btn btn-danger" @click="confirmDelete" style="flex:1; padding: 12px;">Hapus</button>
+            <button class="btn btn-ghost" @click="showDeleteConfirm = false" style="flex:1; padding: 12px;">{{ t('cancel') }}</button>
+            <button class="btn btn-danger" @click="confirmDelete" style="flex:1; padding: 12px;">{{ t('delete') }}</button>
           </div>
         </div>
       </div>
@@ -100,7 +104,7 @@
 <script setup>
 import { ref, computed, onBeforeUnmount } from 'vue'
 import { icons } from './icons.js'
-import { t } from '../i18n.js'
+import { t, currentLanguage } from '../i18n.js'
 import { useTasksStore } from '../stores/tasks.js'
 
 const props = defineProps({ task: { type: Object, required: true } })
@@ -126,17 +130,17 @@ const healthColor = computed(() => {
 
 const timeLeft = computed(() => {
   const diff = new Date(props.task.deadline) - new Date()
-  if (diff < 0) return 'Overdue!'
+  if (diff < 0) return t('overdue')
   const d = Math.floor(diff / 86400000)
   const h = Math.floor((diff % 86400000) / 3600000)
   const m = Math.floor((diff % 3600000) / 60000)
-  if (d > 0) return `${d}d ${h}h`
-  if (h > 0) return `${h}h ${m}m`
-  return `${m}m`
+  if (d > 0) return `${d}${t('days')} ${h}${t('hours')}`
+  if (h > 0) return `${h}${t('hours')} ${m}${t('minutes')}`
+  return `${m}${t('minutes')}`
 })
 
 function formatDate(d) {
-  return new Date(d).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return new Date(d).toLocaleDateString(currentLanguage.value === 'id' ? 'id-ID' : 'en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
 function startDrag(e) {

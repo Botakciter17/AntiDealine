@@ -2,7 +2,7 @@
   <div>
     <div class="task-section" v-if="tasksStore.activeTasks.length">
       <div class="task-section-header">
-        <span>Active Tasks</span>
+        <span>{{ t('activeTasks') }}</span>
         <span class="task-section-count">{{ tasksStore.activeTasks.length }}</span>
       </div>
       <div class="task-list">
@@ -12,7 +12,7 @@
 
     <div class="task-section" v-if="tasksStore.completedTasks.length">
       <div class="task-section-header">
-        <span>Completed</span>
+        <span>{{ t('completed') }}</span>
         <span class="task-section-count">{{ tasksStore.completedTasks.length }}</span>
       </div>
       <div class="task-list">
@@ -22,8 +22,8 @@
 
     <div v-if="!tasksStore.tasks.length && !tasksStore.loading" class="empty-state">
       <div class="empty-state-icon" v-html="icons.file"></div>
-      <h3>No tasks yet</h3>
-      <p>Chat with AI to add your tasks, or add them manually.</p>
+      <h3>{{ t('emptyTasks') }}</h3>
+      <p>{{ t('emptyTasksDesc') }}</p>
     </div>
 
     <div v-if="tasksStore.loading" style="display:flex;justify-content:center;padding:40px;">
@@ -36,6 +36,7 @@
 import { useTasksStore } from '../stores/tasks.js'
 import { icons } from './icons.js'
 import TaskCard from './TaskCard.vue'
+import { t } from '../i18n.js'
 
 const tasksStore = useTasksStore()
 defineEmits(['select'])

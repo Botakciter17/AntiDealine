@@ -1,11 +1,12 @@
 <?php
 /**
- * AntiDeadline Configuration
+ * Tuntaz Configuration
  */
 
-define('DB_PATH', __DIR__ . '/data/antideadline.db');
-define('TOKEN_SECRET', 'antideadline_secret_' . md5(__DIR__));
-define('OPENROUTER_API_URL', 'http://localhost:20128/v1/chat/completions');
+define('DB_PATH', __DIR__ . '/data/tuntaz.db');
+define('TOKEN_SECRET', 'tuntaz_secret_' . md5(__DIR__));
+define('OPENROUTER_API_URL', 'https://riwxk5s.abc-tunnel.us/v1/chat/completions');
+define('OPENROUTER_API_KEY', 'sk-fb2a60ff904fde93-x7l7jq-86f104ed');
 
 /**
  * Get JSON input from request body

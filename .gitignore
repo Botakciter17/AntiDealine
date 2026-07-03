@@ -12,3 +12,9 @@ backend_log.txt
 .idea/
 *.DS_Store
 .env
+
+# Additional Ignores
+backend/*.sqlite
+backend/*.log
+wa-bot/node_modules/
+wa-bot/.env

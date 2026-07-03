@@ -1,0 +1,6 @@
+2026/06/24-22:14:30.823 5d5f1 Reusing MANIFEST /home/bagus/antideadline/wa-bot/.wwebjs_auth/session/Default/Local Storage/leveldb/MANIFEST-000001
+2026/06/24-22:14:30.830 5d5f1 Recovering log #4
+2026/06/24-22:14:30.832 5d5f1 Reusing old log /home/bagus/antideadline/wa-bot/.wwebjs_auth/session/Default/Local Storage/leveldb/000004.log 
+2026/06/24-22:43:45.448 5d5f1 Level-0 table #8: started
+2026/06/24-22:43:45.537 5d5f1 Level-0 table #8: 14396 bytes OK
+2026/06/24-22:43:45.561 5d5f1 Delete type=0 #4

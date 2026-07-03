@@ -1,31 +1,38 @@
 <template>
-  <div class="task-card" :class="{ completed: task.completed }" @click="$emit('select', task)">
-    <div class="task-body">
-      <div class="task-title">{{ task.title }}</div>
-      <div class="task-meta">
-        <span class="task-deadline">
-          <span v-html="icons.calendar"></span>
-          {{ formatDeadline(task.deadline) }}
+  <div class="task-card" :style="{ backgroundColor: cardBgColor }" :class="{ completed: task.completed, 'group-task': !!task.group_id }" @click="$emit('select', task)">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+      <div class="task-title" style="font-size: 16px; font-weight: 700; color: #18181b;">
+        <span v-if="task.group_id" class="group-task-badge">
+          <span v-html="icons.users"></span>
         </span>
-        <span class="task-difficulty" :class="task.difficulty">{{ task.difficulty }}</span>
-        <span v-if="task.progress > 0" style="color: var(--text-tertiary); font-size: 11px;">
-          {{ task.progress }}% done
-        </span>
-        <span v-if="isOverdue && !task.completed" class="task-overdue">
-          <span v-html="icons.alert"></span> Overdue
-        </span>
+        {{ task.title }}
+      </div>
+      <div class="task-difficulty" :style="{ backgroundColor: badgeBgColor, color: '#18181b', fontWeight: 700, padding: '4px 12px', borderRadius: '12px', fontSize: '12px' }">
+        {{ t(task.difficulty).toUpperCase() }}
       </div>
     </div>
+    
+    <div class="task-meta" style="color: #18181b; opacity: 0.8; margin-top: 0; margin-bottom: 12px;">
+      <span class="task-deadline">
+        <span v-html="icons.calendar"></span>
+        {{ formatDeadline(task.deadline) }}
+      </span>
+    </div>
 
-    <div v-if="!task.completed" class="health-bar-wrapper">
-      <div class="health-bar">
+    <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: #18181b; margin-bottom: 8px;">
+      <span>{{ t('normal') }}</span>
+      <span>{{ t('doItNow') }}</span>
+    </div>
+
+    <div v-if="!task.completed" class="health-bar-wrapper" style="width: 100%; display: block;">
+      <div class="health-bar" style="background: rgba(0,0,0,0.1); height: 16px; border-radius: 8px; border: none;">
         <div class="health-bar-fill" :style="{ width: task.health_percent + '%', backgroundColor: healthColor }"></div>
       </div>
-      <span class="health-label" :style="{ color: healthColor }">{{ Math.round(task.health_percent) }}%</span>
+      <div style="text-align: right; font-size: 11px; color: #18181b; font-weight: 700; margin-top: 4px;">{{ Math.round(task.health_percent) }}%</div>
     </div>
 
-    <div v-if="task.completed" style="display:flex;align-items:center;color:var(--accent);">
-      <span v-html="icons.check"></span>
+    <div v-if="task.completed" style="display:flex;align-items:center;color:#18181b; font-weight: bold;">
+      <span v-html="icons.check" style="margin-right: 4px;"></span> {{ t('completed') }}
     </div>
   </div>
 </template>
@@ -33,29 +40,43 @@
 <script setup>
 import { computed } from 'vue'
 import { icons } from './icons.js'
+import { t, currentLanguage } from '../i18n.js'
 
 const props = defineProps({ task: { type: Object, required: true } })
 defineEmits(['select'])
 
 const isOverdue = computed(() => new Date(props.task.deadline) < new Date())
+
+const cardBgColor = computed(() => {
+  if (props.task.difficulty === 'hard') return 'var(--health-red)'
+  if (props.task.difficulty === 'medium') return 'var(--health-yellow)'
+  return '#c1f287' // easy
+})
+
+const badgeBgColor = computed(() => {
+  if (props.task.difficulty === 'hard') return 'rgba(0,0,0,0.15)'
+  if (props.task.difficulty === 'medium') return 'rgba(0,0,0,0.1)'
+  return 'rgba(0,0,0,0.1)'
+})
+
 const healthColor = computed(() => {
-  const hp = props.task.health_percent
-  if (hp >= 70) return '#4CAF50'
-  if (hp >= 45) return '#FFC107'
-  if (hp >= 20) return '#FF9800'
-  return '#F44336'
+  return '#4ade80' // Using a strong green for the bar itself, or whatever fits
 })
 
 function formatDeadline(deadline) {
   const d = new Date(deadline)
-  const diff = d - new Date()
-  const days = Math.floor(diff / 86400000)
-  const hours = Math.floor((diff % 86400000) / 3600000)
-  if (diff < 0) return 'Overdue'
-  if (days === 0 && hours <= 0) return 'Due now'
-  if (days === 0) return `${hours}h left`
-  if (days === 1) return 'Tomorrow'
-  if (days < 7) return `${days} days left`
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return d.toLocaleDateString(currentLanguage.value === 'id' ? 'id-ID' : 'en-US', { weekday: 'long', day: 'numeric', month: 'short' })
 }
 </script>
+
+<style scoped>
+.task-card {
+  padding: 20px;
+  border-radius: 24px;
+  border: none;
+  color: #18181b;
+}
+.group-task {
+  border: 2px solid rgba(0,0,0,0.2) !important;
+}
+</style>

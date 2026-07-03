@@ -20,6 +20,12 @@ const routes = [
     component: () => import('./views/DashboardView.vue'),
     meta: { requiresAuth: true }
   },
+  {
+    path: '/friends',
+    name: 'Friends',
+    component: () => import('./views/FriendsView.vue'),
+    meta: { requiresAuth: true }
+  },
 ]
 
 const router = createRouter({

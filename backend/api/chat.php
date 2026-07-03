@@ -76,7 +76,7 @@ function chat(int $userId): void {
     $tasksJson = json_encode($existingTasks, JSON_PRETTY_PRINT);
 
     $systemPrompt = <<<PROMPT
-You are AntiDeadline AI, a task management assistant. Your job is to help users organize their tasks and deadlines.
+You are Tuntaz AI, a task management assistant. Your job is to help users organize their tasks and deadlines.
 
 Current date/time: {$currentDate}
 
@@ -120,6 +120,7 @@ IMPORTANT RULES:
    - Set difficulty based on the complexity visible in the material
    - Provide a brief summary of what the task requires
 11. NO INTERNAL NOTES: Do NOT include any internal thinking, debug notes, tags, or messages like "skipped: subtask breakdown" in your response. Your response must only contain the conversational text meant for the user, followed by the JSON block if a task is created.
+12. STRICT LIMITATION: You MUST NOT write code, write essays, solve math problems, or do the user's homework/tasks for them. If they ask you to do their task or generate code, politely refuse and tell them your ONLY job is to help them manage their tasks, remind them of deadlines, and provide encouragement. Do not provide any technical solutions or code snippets.
 PROMPT;
 
     // Build messages array
@@ -169,6 +170,7 @@ PROMPT;
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HTTPHEADER => [
             'Content-Type: application/json',
+            'Authorization: Bearer ' . OPENROUTER_API_KEY,
         ],
         CURLOPT_TIMEOUT => 120,
     ]);

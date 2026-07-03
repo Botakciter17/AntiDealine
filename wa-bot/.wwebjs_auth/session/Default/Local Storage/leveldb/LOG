@@ -1,0 +1,9 @@
+2026/06/29-18:20:06.941 4edd Reusing MANIFEST /home/bagus/antideadline/wa-bot/.wwebjs_auth/session/Default/Local Storage/leveldb/MANIFEST-000001
+2026/06/29-18:20:06.947 4edd Recovering log #7
+2026/06/29-18:20:06.949 4edd Reusing old log /home/bagus/antideadline/wa-bot/.wwebjs_auth/session/Default/Local Storage/leveldb/000007.log 
+2026/06/29-19:10:19.538 4edf Level-0 table #11: started
+2026/06/29-19:10:19.548 4edf Level-0 table #11: 14451 bytes OK
+2026/06/29-19:10:19.563 4edf Delete type=0 #7
+2026/06/29-20:20:22.003 4edd Level-0 table #13: started
+2026/06/29-20:20:22.015 4edd Level-0 table #13: 10997 bytes OK
+2026/06/29-20:20:22.039 4edd Delete type=0 #10

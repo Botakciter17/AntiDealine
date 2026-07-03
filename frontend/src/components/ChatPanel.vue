@@ -1,6 +1,7 @@
 <template>
   <div class="chat-layout">
     <!-- Sidebar for Sessions -->
+    <div v-if="showSidebar" class="sidebar-overlay" @click="showSidebar = false"></div>
     <div class="chat-sidebar" :class="{ 'open': showSidebar }">
       <div class="chat-sidebar-header">
         <button class="btn btn-primary" @click="startNewChat" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -9,13 +10,13 @@
         <button class="btn-icon mobile-close-sidebar" @click="showSidebar = false" v-html="icons.close"></button>
       </div>
       <div class="chat-sidebar-list">
-        <div v-if="sessions.length === 0" class="empty-sessions">Belum ada chat</div>
+        <div v-if="sessions.length === 0" class="empty-sessions">{{ t('noChats') }}</div>
         <div v-for="session in sessions" :key="session.id" 
              class="session-item" :class="{ 'active': currentSessionId === session.id }"
              @click="loadSession(session.id)">
           <span class="session-icon" v-html="icons.chat"></span>
           <span class="session-title">{{ session.title }}</span>
-          <button class="btn-icon delete-session-btn" @click.stop="deleteSession(session.id)" title="Hapus">
+          <button class="btn-icon delete-session-btn" @click.stop="deleteSession(session.id)" :title="t('remove')">
             <span v-html="icons.trash"></span>
           </button>
         </div>
@@ -32,11 +33,11 @@
       <div class="chat-panel">
         <div class="chat-messages" ref="chatContainer">
           <div v-if="!messages.length" class="chat-empty">
-            <div class="chat-empty-icon" v-html="icons.robot"></div>
-            <h3>AI Task Assistant</h3>
-            <p>Ceritakan tugas-tugas kamu, deadline-nya kapan, dan seberapa susah. AI akan membuatkan todo list otomatis!</p>
+            <div class="chat-empty-icon" v-html="icons.aiRobotFace"></div>
+            <h3 style="font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">AI Task Assistant</h3>
+            <p>{{ t('aiWelcomeDesc') }}</p>
             <div class="chat-suggestions">
-              <button class="chat-suggestion" v-for="s in suggestions" :key="s" @click="useSuggestion(s)">{{ s }}</button>
+              <button class="chat-suggestion" v-for="s in [t('suggestion1'), t('suggestion2'), t('suggestion3')]" :key="s" @click="useSuggestion(s)">{{ s }}</button>
             </div>
           </div>
 
@@ -49,7 +50,7 @@
               <div class="chat-content" v-html="formatMessage(msg.content)"></div>
               <div v-if="msg.tasksCreated?.length" class="chat-tasks-created">
                 <div style="font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:6px;">
-                  <span v-html="icons.check"></span> Tasks added:
+                  <span v-html="icons.check"></span> {{ t('tasksAdded') }}
                 </div>
                 <div v-for="task in msg.tasksCreated" :key="task.id" class="task-created-item">
                   <span>•</span>
@@ -79,9 +80,9 @@
         </div>
 
         <div class="chat-input-area">
-          <div class="chat-input-wrapper">
+          <div class="chat-input-wrapper" style="border: 1px solid rgba(255,255,255,0.1); background: #27272a; padding: 8px 16px;">
             <div class="attach-wrapper">
-              <button class="chat-attach-btn" @click="toggleAttachMenu" :disabled="sending" title="Lampirkan file">
+              <button class="chat-attach-btn" @click="toggleAttachMenu" :disabled="sending" :title="t('attachFile')" style="color: var(--text-secondary);">
                 <span v-html="showAttachMenu ? icons.close : icons.attach"></span>
               </button>
 
@@ -89,19 +90,23 @@
                 <div v-if="showAttachMenu" class="attach-menu">
                   <button class="attach-menu-item" @click="pickFile('image')">
                     <span class="attach-menu-icon image-icon" v-html="icons.image"></span>
-                    <span>Foto / Gambar</span>
+                    <span>{{ t('photoImage') }}</span>
                   </button>
                   <button class="attach-menu-item" @click="pickFile('document')">
                     <span class="attach-menu-icon doc-icon" v-html="icons.file"></span>
-                    <span>Dokumen</span>
+                    <span>{{ t('document') }}</span>
                   </button>
                 </div>
               </Transition>
             </div>
 
             <input type="file" ref="fileInput" @change="onFileSelected" :accept="fileAccept" style="display:none" />
-            <textarea v-model="input" class="input" placeholder="Ceritakan tugas kamu..." @keydown.enter.exact.prevent="sendMessage" rows="1" ref="chatInput"></textarea>
-            <button class="chat-send-btn" @click="sendMessage" :disabled="(!input.trim() && !attachedFile) || sending">
+            <textarea v-model="input" class="input" :placeholder="t('typeMessage')" @keydown.enter.exact.prevent="sendMessage" rows="1" ref="chatInput" style="border: none; background: transparent; flex: 1; min-height: 24px; max-height: 120px; outline: none; box-shadow: none; padding: 10px 0; color: white;"></textarea>
+            
+            <button class="chat-mic-btn" :class="{ listening: isListening }" @click="toggleVoice" :disabled="sending" title="Voice Input" style="background: transparent; border: none; color: var(--text-secondary); box-shadow: none;">
+              <span v-html="icons.mic"></span>
+            </button>
+            <button class="chat-send-btn" @click="sendMessage" :disabled="(!input.trim() && !attachedFile) || sending" style="background: var(--health-yellow); color: #18181b;">
               <span v-html="icons.send"></span>
             </button>
           </div>
@@ -112,6 +117,7 @@
 </template>
 
 <script setup>
+import { t } from '../i18n.js'
 import { ref, computed, nextTick, onMounted } from 'vue'
 import { api, apiUpload } from '../api.js'
 import { useTasksStore } from '../stores/tasks.js'
@@ -125,6 +131,8 @@ const currentSessionId = ref(null)
 const input = ref('')
 const sending = ref(false)
 const showSidebar = ref(false)
+const isListening = ref(false)
+let recognition = null
 
 const chatContainer = ref(null)
 const chatInput = ref(null)
@@ -134,18 +142,13 @@ const filePreviewUrl = ref(null)
 const showAttachMenu = ref(false)
 const fileAccept = ref('image/*,.pdf,.txt,.doc,.docx')
 
-const suggestions = [
-  'Aku punya tugas game dev deadline Sabtu',
-  'Ada presentasi besok dan belum bikin slides',
-  'Tugas matematika deadline 3 hari lagi',
-]
 
 marked.setOptions({ breaks: true, gfm: true })
 
 const currentSessionTitle = computed(() => {
-  if (!currentSessionId.value) return 'Chat Baru'
+  if (!currentSessionId.value) return t('newChat')
   const session = sessions.value.find(s => s.id === currentSessionId.value)
-  return session ? session.title : 'Chat Baru'
+  return session ? session.title : t('newChat')
 })
 
 function formatMessage(content) {
@@ -156,6 +159,18 @@ function formatMessage(content) {
 }
 
 function useSuggestion(text) { input.value = text; chatInput.value?.focus() }
+
+function toggleVoice() {
+  if (!recognition) {
+    alert(t('browserNoVoice'))
+    return
+  }
+  if (isListening.value) {
+    recognition.stop()
+  } else {
+    recognition.start()
+  }
+}
 
 function toggleAttachMenu() { showAttachMenu.value = !showAttachMenu.value }
 
@@ -213,7 +228,7 @@ function startNewChat() {
 }
 
 async function deleteSession(id) {
-  if (!confirm('Hapus percakapan ini?')) return
+  if (!confirm(t('deleteChatConfirm'))) return
   try {
     await api('/chat/sessions', 'DELETE', { id })
     sessions.value = sessions.value.filter(s => s.id !== id)
@@ -221,7 +236,7 @@ async function deleteSession(id) {
       startNewChat()
     }
   } catch (e) {
-    alert('Gagal menghapus percakapan')
+    alert(t('deleteChatFailed'))
   }
 }
 
@@ -278,9 +293,25 @@ async function scrollToBottom() {
 
 onMounted(async () => {
   await fetchSessions()
-  if (sessions.value.length > 0) {
-    await loadSession(sessions.value[0].id)
-  }
   chatInput.value?.focus()
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+  if (SpeechRecognition) {
+    recognition = new SpeechRecognition()
+    recognition.lang = 'id-ID'
+    recognition.continuous = false
+    recognition.interimResults = false
+    
+    recognition.onstart = () => { isListening.value = true }
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript
+      input.value = (input.value + ' ' + transcript).trim()
+    }
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error', event.error)
+      isListening.value = false
+    }
+    recognition.onend = () => { isListening.value = false }
+  }
 })
 </script>

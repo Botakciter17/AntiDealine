@@ -361,9 +361,9 @@
                   <div class="friend-username" style="font-size: 11px;">@{{ member.username }}</div>
                 </div>
                 <div class="member-actions" v-if="member.id !== userId">
-                  <button v-if="member.role !== 'admin'" class="btn btn-ghost" @click="changeMemberRole(member.id, 'admin')" style="font-size: 11px; padding: 4px 8px;" title="t('makeAdmin')">{{ t('makeAdmin') }}</button>
-                  <button v-if="member.role === 'admin'" class="btn btn-ghost" @click="changeMemberRole(member.id, 'member')" style="font-size: 11px; padding: 4px 8px;" title="t('makeMember')">{{ t('makeMember') }}</button>
-                  <button class="btn btn-ghost text-danger" @click="kickMember(member.id)" style="font-size: 11px; padding: 4px 8px;" title="t('kick')">{{ t('kick') }}</button>
+                  <button v-if="member.role !== 'admin'" class="btn btn-ghost" @click="changeMemberRole(member.id, 'admin')" style="font-size: 11px; padding: 4px 8px;" :title="t('makeAdmin')">{{ t('makeAdmin') }}</button>
+                  <button v-if="member.role === 'admin'" class="btn btn-ghost" @click="changeMemberRole(member.id, 'member')" style="font-size: 11px; padding: 4px 8px;" :title="t('makeMember')">{{ t('makeMember') }}</button>
+                  <button class="btn btn-ghost text-danger" @click="kickMember(member.id)" style="font-size: 11px; padding: 4px 8px;" :title="t('kick')">{{ t('kick') }}</button>
                 </div>
               </div>
             </div>
@@ -668,7 +668,7 @@ async function kickMember(userId) {
 }
 
 async function changeMemberRole(userId, newRole) {
-  const roleText = newRole === 'admin' ? 't('makeAdmin')' : 'Jadikan Member Biasa'
+  const roleText = newRole === 'admin' ? t('makeAdmin') : t('makeMember')
   if (!confirm(`Yakin ingin ${roleText}?`)) return
   try {
     await api('/groups/members/role', 'POST', { group_id: editingGroup.value.id, user_id: userId, role: newRole })
@@ -1587,10 +1587,9 @@ async function submitGroupTaskAssign() {
 }
 
 /* ===== MOBILE ===== */
-@media (max-width: 768px) {
   .social-view {
     flex: 1;
-    height: calc(100vh - 60px);
+    height: 100%;
     border: none;
     border-radius: 0;
   }
@@ -1621,7 +1620,6 @@ async function submitGroupTaskAssign() {
   .chat-input { padding: 10px 14px; font-size: 14px; }
   .btn-send { width: 40px; height: 40px; }
   .chat-input-area { position: relative; bottom: 0; padding-bottom: 24px; }
-}
 
 .progress-slider {
   -webkit-appearance: none;
